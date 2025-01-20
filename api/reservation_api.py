@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from models.model import Reservation, Concert, User  # Reservation 모델 가져오기
 from utils.database import get_db
+import json
 
 router = APIRouter(prefix='/reservation', tags=['reservation'])
 

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from models.model import Concert
 from utils.database import get_db
 from datetime import date
-# from utils.redis_client import redis_client
+from utils.redis_client import redis_client
 
 router = APIRouter(prefix='/concert', tags=['concert'])
 
@@ -41,7 +41,6 @@ def create_concert(
     price: int,
     image: str,
     db: Session = Depends(get_db)
-    # redis = redis_client,
 ):
     try:
         data = Concert(
@@ -53,10 +52,13 @@ def create_concert(
             price=price,
             image=image
             )
+        
         db.add(data)
         db.commit()
         db.refresh(data)
-
+        redis_client.set(f"concert:{data.concert_id}:seat_reserved_count", "0")
+        redis_client.set(f"concert:{data.seat_count}:seat_all_count", "0")
+        
         return {
             "message": "성공"
         }
