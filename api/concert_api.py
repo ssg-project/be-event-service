@@ -40,7 +40,7 @@ def create_concert(
     place: str,
     price: int,
     image: str,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db)
     # redis = redis_client,
 ):
     try:
@@ -50,7 +50,8 @@ def create_concert(
             seat_count=seat_count,
             date=date,
             place=place,
-            price=price
+            price=price,
+            image=image
             )
         db.add(data)
         db.commit()
