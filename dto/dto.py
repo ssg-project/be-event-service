@@ -2,18 +2,6 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
-### user
-class UserLoginReqeust(BaseModel):
-    email: str
-    password: str
-
-class UserJoinRequest(BaseModel):
-    email: str
-    password: str
-
-class UserDeleteRequest(BaseModel):
-    user_id: int
-
 ### file    
 class FileUploadedItem(BaseModel):
     file_name: str
