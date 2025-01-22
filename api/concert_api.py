@@ -4,6 +4,7 @@ from models.model import Concert
 from utils.database import get_db
 from datetime import date, datetime
 from utils.redis_client import redis_client
+from dto.dto import CreateConcert
 
 router = APIRouter(prefix='/concert', tags=['concert'])
 
@@ -33,26 +34,20 @@ def get_concert_detail(concert_id: str, db: Session = Depends(get_db)):
 
 @router.post('/create', description='콘서트 생성')
 def create_concert(
-    name: str,
-    description: str,
-    seat_count: int,
-    date: date,
-    place: str,
-    price: int,
-    image: str,
+    request_body: CreateConcert,
     db: Session = Depends(get_db)
 ):
     try:
         data = Concert(
-            name=name,
-            description=description,
-            seat_count=seat_count,
-            date=date,
-            place=place,
-            price=price,
-            image=image
-            )
-        datetime_obj = datetime.combine(date, datetime.min.time())
+            name=request_body.name,
+            description=request_body.description,
+            seat_count=request_body.seat_count,
+            date=request_body.date,
+            place=request_body.place,
+            price=request_body.price,
+            image=request_body.image
+        )
+        datetime_obj = datetime.combine(request_body.date, datetime.min.time())
         timestamp = datetime_obj.timestamp()
         
         db.add(data)
@@ -70,3 +65,4 @@ def create_concert(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"오류: {str(e)}")
+    
