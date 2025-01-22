@@ -3,14 +3,15 @@ from dotenv import load_dotenv
 
 # Redis 클라이언트 생성
 load_dotenv()
-redis_client = redis.Redis(
-    host=os.environ['REDIS_HOST'],
-    port=os.environ['REDIS_PORT'],
-    db=os.environ['REDIS_DB'],
-    username=os.environ['REDIS_USER'],
-    password=os.environ['REDIS_PASS'],
-    decode_responses=True # 응답을 문자열로 디코딩 (기본적으로 바이트로 반환됨)
-)
+# redis_client = redis.Redis(
+#     host=os.environ['REDIS_HOST'],
+#     port=os.environ['REDIS_PORT'],
+#     db=os.environ['REDIS_DB'],
+#     username=os.environ['REDIS_USER'],
+#     password=os.environ['REDIS_PASS'],
+#     decode_responses=True # 응답을 문자열로 디코딩 (기본적으로 바이트로 반환됨)
+# )
+redis_client = redis.StrictRedis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], decode_responses=True)
 
 # 연결 테스트
 # try:

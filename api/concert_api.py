@@ -35,7 +35,7 @@ def get_concert_detail(concert_id: str, db: Session = Depends(get_db)):
 @router.post('/create', description='콘서트 생성')
 def create_concert(
     request_body: CreateConcert,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     try:
         data = Concert(
@@ -53,11 +53,20 @@ def create_concert(
         db.add(data)
         db.commit()
         db.refresh(data)
+
+        print("concert_id:", data.concert_id)
+        print(redis_client)
+        # redis_client.set("1","1")
+        # redis_client.set(f"concert:{data.concert_id}:seat_reserved_count", "0")
+        # redis_client.set(f"concert:{data.concert_id}:seat_all_count", "0")
+        # redis_client.expireat(f"concert:{data.concert_id}:seat_reserved_count", int(timestamp))
+        # redis_client.expireat(f"concert:{data.concert_id}:seat_all_count", int(timestamp))
+
         redis_client.set(f"concert:{data.concert_id}:seat_reserved_count", "0")
-        redis_client.set(f"concert:{data.concert_id}:seat_all_count", "0")
+        redis_client.set(f"concert:{data.concert_id}:seat_all_count", data.seat_count)
         redis_client.expireat(f"concert:{data.concert_id}:seat_reserved_count", int(timestamp))
         redis_client.expireat(f"concert:{data.concert_id}:seat_all_count", int(timestamp))
-        
+                    
         return {
             "message": "성공"
         }
