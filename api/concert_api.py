@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from models.model import Concert
 from utils.database import get_db
-from datetime import date
+from datetime import date, datetime
 from utils.redis_client import redis_client
 
 router = APIRouter(prefix='/concert', tags=['concert'])
@@ -52,12 +52,16 @@ def create_concert(
             price=price,
             image=image
             )
+        datetime_obj = datetime.combine(date, datetime.min.time())
+        timestamp = datetime_obj.timestamp()
         
         db.add(data)
         db.commit()
         db.refresh(data)
         redis_client.set(f"concert:{data.concert_id}:seat_reserved_count", "0")
-        redis_client.set(f"concert:{data.seat_count}:seat_all_count", "0")
+        redis_client.set(f"concert:{data.concert_id}:seat_all_count", "0")
+        redis_client.expireat(f"concert:{data.concert_id}:seat_reserved_count", int(timestamp))
+        redis_client.expireat(f"concert:{data.concert_id}:seat_all_count", int(timestamp))
         
         return {
             "message": "성공"
