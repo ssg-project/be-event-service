@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, case
-from models.model import Concert, Reservation
+from models.model import Concert, Reservation, User
 from utils.database import get_db
 from datetime import date, datetime
 from utils.redis_client import redis_client
@@ -52,6 +52,12 @@ def get_concert_detail(concert_id: str, db: Session = Depends(get_db)):
         if not concert:
             raise HTTPException(status_code=404, detail="콘서트를 찾을 수 없습니다.")
 
+        # 현재 사용자가 해당 콘서트를 이미 예약했는지 확인
+        is_reserved = db.query(Reservation).filter(
+            Reservation.concert_id == concert_id,
+            Reservation.user_id == User.user_id
+        ).first() is not None
+        
         # 결과 반환
         return {
             "concert": {
@@ -63,7 +69,8 @@ def get_concert_detail(concert_id: str, db: Session = Depends(get_db)):
                 "date": concert.date,
                 "place": concert.place,
                 "created_at": concert.created_at,
-                "is_full": concert.is_full
+                "is_full": concert.is_full,
+                "is_reserved": is_reserved  # 중복 예약 여부 추가
             }
         }
     except Exception as e:
