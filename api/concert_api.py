@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from models.model import Concert
+from sqlalchemy.sql import func, case
+from models.model import Concert, Reservation
 from utils.database import get_db
 from datetime import date, datetime
 from utils.redis_client import redis_client
@@ -25,10 +26,28 @@ def get_concert_detail(concert_id: str, db: Session = Depends(get_db)):
     특정 콘서트의 상세 정보를 조회합니다.
     """
     try:
-        concert = db.query(Concert).filter(Concert.concert_id == concert_id).first()
+        concert = db.query(
+            Concert.filter(Concert.concert_id == concert_id).first(),
+            Concert.name,
+            Concert.description,
+            Concert.seat_count,
+            case(
+                [(func.count(Reservation.concert_id) >= Concert.seat_count, True)],
+                else_=False
+            ).label('is_full')
+        )
+            
         if not concert:
             raise HTTPException(status_code=404, detail="콘서트를 찾을 수 없습니다.")
-        return {"concert": concert}
+        return {
+            "concert": {
+                "concert_id": concert.concert_id,
+                "name": concert.name,
+                "description": concert.description,
+                "seat_count": concert.seat_count,
+                "is_full": concert.is_full
+            }
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"콘서트 상세 조회 실패: {str(e)}")
 
