@@ -25,20 +25,33 @@ def get_concert_detail(concert_id: str, db: Session = Depends(get_db)):
     """
     특정 콘서트의 상세 정보를 조회합니다.
     """
+    print(concert_id)
     try:
+        # Reservation 테이블과 조인하여 예약 수를 계산하고 is_full 값을 추가
         concert = db.query(
-            Concert.filter(Concert.concert_id == concert_id).first(),
+            Concert.concert_id,
             Concert.name,
             Concert.description,
             Concert.seat_count,
+            # case(
+            #     [(func.count(Reservation.concert_id) >= Concert.seat_count, True)],
+            #     else_=False
+            # ).label('is_full')
             case(
-                [(func.count(Reservation.concert_id) >= Concert.seat_count, True)],
+                (func.count(Reservation.concert_id) >= Concert.seat_count, True),
                 else_=False
             ).label('is_full')
-        )
-            
+
+        ).outerjoin(Reservation, Concert.concert_id == Reservation.concert_id)\
+         .filter(Concert.concert_id == concert_id)\
+         .group_by(Concert.concert_id)\
+         .first()
+
+        # 콘서트가 없을 경우 예외 처리
         if not concert:
             raise HTTPException(status_code=404, detail="콘서트를 찾을 수 없습니다.")
+
+        # 결과 반환
         return {
             "concert": {
                 "concert_id": concert.concert_id,
