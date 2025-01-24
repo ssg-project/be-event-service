@@ -31,12 +31,13 @@ def get_concert_detail(concert_id: str, db: Session = Depends(get_db)):
         concert = db.query(
             Concert.concert_id,
             Concert.name,
+            Concert.image,
             Concert.description,
             Concert.seat_count,
-            # case(
-            #     [(func.count(Reservation.concert_id) >= Concert.seat_count, True)],
-            #     else_=False
-            # ).label('is_full')
+            Concert.date,
+            Concert.place,
+            Concert.created_at,
+            Concert.updated_at,
             case(
                 (func.count(Reservation.concert_id) >= Concert.seat_count, True),
                 else_=False
@@ -56,8 +57,12 @@ def get_concert_detail(concert_id: str, db: Session = Depends(get_db)):
             "concert": {
                 "concert_id": concert.concert_id,
                 "name": concert.name,
+                "image": concert.image,
                 "description": concert.description,
                 "seat_count": concert.seat_count,
+                "date": concert.date,
+                "place": concert.place,
+                "created_at": concert.created_at,
                 "is_full": concert.is_full
             }
         }
