@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, case
 from models.model import Concert, Reservation, User
@@ -6,6 +6,7 @@ from utils.database import get_db
 from datetime import date, datetime
 from utils.redis_client import redis_client
 from dto.dto import CreateConcert
+import json
 
 router = APIRouter(prefix='/concert', tags=['concert'])
 
@@ -21,7 +22,9 @@ def get_concert_list(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"콘서트 조회 실패: {str(e)}")
 
 @router.get('/{concert_id}', description='특정 콘서트 상세 조회')
-def get_concert_detail(concert_id: str, db: Session = Depends(get_db)):
+def get_concert_detail(concert_id: str, request: Request, db: Session = Depends(get_db)):
+    current_user = get_current_user(request)
+
     """
     특정 콘서트의 상세 정보를 조회합니다.
     """
@@ -55,7 +58,7 @@ def get_concert_detail(concert_id: str, db: Session = Depends(get_db)):
         # 현재 사용자가 해당 콘서트를 이미 예약했는지 확인
         is_reserved = db.query(Reservation).filter(
             Reservation.concert_id == concert_id,
-            Reservation.user_id == User.user_id
+            Reservation.user_id == current_user["user_id"]
         ).first() is not None
         
         # 결과 반환
@@ -119,3 +122,17 @@ def create_concert(
         db.rollback()
         raise HTTPException(status_code=500, detail=f"오류: {str(e)}")
     
+    
+def get_current_user(request: Request):
+    scope_data = request.headers.get("X-Scope")
+
+    if not scope_data:
+        raise HTTPException(status_code=401, detail="인증되지 않은 요청입니다.")
+    try:
+        scope = json.loads(scope_data)
+        user = scope.get("user")
+        if not user or not user.get('is_authenticated'):
+            raise HTTPException(status_code=401, detail="인증되지 않은 요청입니다.")
+        return user
+    except:
+        raise HTTPException(status_code=401, detail="인증되지 않은 요청입니다.")
