@@ -21,55 +21,6 @@ async def get_current_user(request: Request):
     except:
         raise HTTPException(status_code=401, detail="인증되지 않은 요청입니다.")
 
-# @router.post('/create', description='공연 예약 생성')
-# def create_reservation(user_id: int, concert_id: int, db: Session = Depends(get_db)):
-#     """
-#     특정 사용자(user_id)가 특정 콘서트(concert_id)를 예약합니다.
-#     """
-#     try:
-#         # 사용자와 콘서트가 존재하는지 확인
-#         user = db.query(User).filter(User.user_id == user_id).first()
-#         concert = db.query(Concert).filter(Concert.concert_id == concert_id).first()
-
-#         if not user:
-#             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
-#         if not concert:
-#             raise HTTPException(status_code=404, detail="콘서트를 찾을 수 없습니다.")
-
-#         # 중복 예약 확인
-#         existing_reservation = db.query(Reservation).filter(
-#             Reservation.user_id == user_id,
-#             Reservation.concert_id == concert_id
-#         ).first()
-
-#         if existing_reservation:
-#             raise HTTPException(status_code=400, detail="이미 해당 콘서트에 대한 예약이 존재합니다.")
-
-#         # 콘서트 좌석이 남아있는지 확인
-#         reserved_seats = db.query(Reservation).filter(Reservation.concert_id == concert_id).count()
-#         if reserved_seats >= concert.seat_count:
-#             raise HTTPException(status_code=400, detail="해당 콘서트의 예약 가능한 좌석이 없습니다.")
-
-#         # 예약 생성
-#         reservation = Reservation(user_id=user_id, concert_id=concert_id)
-#         db.add(reservation)
-#         db.commit()
-#         db.refresh(reservation)
-
-#         return {
-#             "message": "예약이 성공적으로 생성되었습니다.",
-#             "reservation": {
-#                 "reservation_id": reservation.reservation_id,
-#                 "user_id": reservation.user_id,
-#                 "concert_id": reservation.concert_id,
-#                 "reservation_date": reservation.reservation_date,
-#             }
-#         }
-
-#     except Exception as e:
-#         db.rollback()
-#         raise HTTPException(status_code=500, detail=f"예약 생성 중 오류 발생: {str(e)}")
-
 # 임시 구현: user_id로 조회
 @router.get('/search', description='사용자(user_id)의 모든 예약 내역 조회')
 async def get_reservations_by_user(request: Request, db: Session = Depends(get_db)):
