@@ -1,8 +1,6 @@
 import redis, os
-from dotenv import load_dotenv
 
 # Redis 클라이언트 생성
-load_dotenv()
 # redis_client = redis.Redis(
 #     host=os.environ['REDIS_HOST'],
 #     port=os.environ['REDIS_PORT'],
