@@ -1,4 +1,5 @@
-import redis, os
+import redis
+from config.config import REDIS_HOST, REDIS_PORT
 
 # Redis 클라이언트 생성
 # redis_client = redis.Redis(
@@ -9,7 +10,7 @@ import redis, os
 #     password=os.environ['REDIS_PASS'],
 #     decode_responses=True # 응답을 문자열로 디코딩 (기본적으로 바이트로 반환됨)
 # )
-redis_client = redis.StrictRedis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], decode_responses=True)
+redis_client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
 # 연결 테스트
 # try:
