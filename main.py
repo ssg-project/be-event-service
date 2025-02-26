@@ -3,12 +3,20 @@ from api.concert_api import router as concert_router
 from api.reservation_api import router as reservation_router
 from prometheus_fastapi_instrumentator import Instrumentator
 import uvicorn
+import logging
 
 app = FastAPI()
 
 # router 설정
 app.include_router(concert_router, prefix="/api/v1", tags=["concert"])
 app.include_router(reservation_router, prefix="/api/v1", tags=["reservation"])
+
+# 로깅 설정
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - event-service - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()]
+)
 
 @app.get("/")
 async def read_root():

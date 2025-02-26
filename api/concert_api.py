@@ -7,18 +7,23 @@ from datetime import date, datetime
 from utils.redis_client import redis_client
 from dto.dto import CreateConcert
 import json
+import logging
 
 router = APIRouter(prefix='/concert', tags=['concert'])
+logger = logging.getLogger(__name__)
 
 @router.get('/list', description='콘서트 목록 조회')
 def get_concert_list(db: Session = Depends(get_db)):
     """
     콘서트 목록을 조회합니다.
     """
+    logger.info(f"concert list api - start")
     try:
         concerts = db.query(Concert).all()  # 모든 콘서트 데이터를 가져옵니다.
+        logger.info(f"concert list api - success")
         return {"concerts": concerts}
     except Exception as e:
+        logger.error(f"concert list api - error: {e}")
         raise HTTPException(status_code=500, detail=f"콘서트 조회 실패: {str(e)}")
 
 async def get_current_user(request: Request):
@@ -44,12 +49,11 @@ async def get_concert_detail(
     """
     특정 콘서트의 상세 정보를 조회합니다.
     """
+    logger.info(f"concert detail api - start : concert_id: {concert_id}")
     try:
-        print(request)
-        print(1)
-        current_user = await get_current_user(request)
-        print(current_user)
 
+        current_user = await get_current_user(request)
+        logger.info(f"concert detail api - current_user: {current_user}")
         concert = db.query(
             Concert.concert_id,
             Concert.name,
@@ -77,7 +81,7 @@ async def get_concert_detail(
             Reservation.concert_id == concert_id,
             Reservation.user_id == current_user['user_id']
         ).first() is not None
-        
+        logger.info(f"ticket reserve api - success")
         return {
             "concert": {
                 "concert_id": concert.concert_id,
@@ -94,6 +98,7 @@ async def get_concert_detail(
         }
     except Exception as e:
         print(f"Error in get_concert_detail: {str(e)}")
+        logger.error(f"ticket reserve api - error: {e}")
         raise HTTPException(status_code=500, detail=f"콘서트 상세 조회 실패: {str(e)}")
 
 
