@@ -49,11 +49,11 @@ async def get_concert_detail(
     """
     특정 콘서트의 상세 정보를 조회합니다.
     """
-    logger.info(f"concert detail api - start : concert_id: {concert_id}")
+    
     try:
 
         current_user = await get_current_user(request)
-        logger.info(f"concert detail api - current_user: {current_user}")
+        logger.info(f"concert detail api - start : concert_id: {concert_id}, user: {current_user['user_id']}")
         concert = db.query(
             Concert.concert_id,
             Concert.name,
