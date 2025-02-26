@@ -81,7 +81,7 @@ async def get_concert_detail(
             Reservation.concert_id == concert_id,
             Reservation.user_id == current_user['user_id']
         ).first() is not None
-        logger.info(f"ticket reserve api - success")
+        logger.info(f"concert detail api - success")
         return {
             "concert": {
                 "concert_id": concert.concert_id,
@@ -98,7 +98,7 @@ async def get_concert_detail(
         }
     except Exception as e:
         print(f"Error in get_concert_detail: {str(e)}")
-        logger.error(f"ticket reserve api - error: {e}")
+        logger.error(f"concert detail api - error: {e}")
         raise HTTPException(status_code=500, detail=f"콘서트 상세 조회 실패: {str(e)}")
 
 
