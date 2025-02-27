@@ -97,7 +97,6 @@ async def get_concert_detail(
             }
         }
     except Exception as e:
-        print(f"Error in get_concert_detail: {str(e)}")
         logger.error(f"concert detail api - error: {e}")
         raise HTTPException(status_code=500, detail=f"콘서트 상세 조회 실패: {str(e)}")
 
