@@ -10,7 +10,8 @@ import json
 import logging
 
 router = APIRouter(prefix='/concert', tags=['concert'])
-logger = logging.getLogger(__name__)
+
+logger = logging.getLogger("event-service")
 
 @router.get('/list', description='콘서트 목록 조회')
 def get_concert_list(db: Session = Depends(get_db)):
